@@ -1,0 +1,12 @@
+<h1>{{data.text}}</h1>
+
+<canvas #canvas
+        width="640"
+        height="480"
+></canvas>
+
+<div>
+  <span *ngFor="let v of data.result.keys()">
+    <button (click)="vote(v)">{{v}}</button>
+  </span>
+</div>

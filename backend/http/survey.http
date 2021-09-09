@@ -1,0 +1,17 @@
+POST http://localhost:8080/survey/
+Content-Type: application/json
+
+{
+  "text": "Das ist die Frage...",
+  "result": {
+    "a": 11,
+    "b": 22,
+    "c": 33
+  }
+}
+
+###
+
+POST http://localhost:8080/survey/vote/b
+
+{}
