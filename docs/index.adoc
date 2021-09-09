@@ -1,0 +1,189 @@
+= Übung WebSockets: Surveytool
+:icons: font
+:imagesdir: images
+:revealjs_theme: beige
+:revealjs_hash: true
+:revealjs_history: true
+:author: G. Aistleitner
+:source-highlighter: highlightjs
+:backgroundimg: https://github.com/aisge/presentationbgvids/raw/master
+:besrc: ../backend/src/main/java
+:fesrc: ../frontend/src/app
+:customcss: presentation.css
+// :revealjs_customtheme: presentation.css
+
+== Aufgabenstellung
+
+Es soll ein simples Umfragetool erstellt werden, wo die Teilnehmer immer den aktuellen Abstimmungsstand sehen.
+D.h. gibt ein Teilnehmer seine Stimme ab, sollen alle Clients darüber informiert werden und die Diagramme neu gezeichnet werden.
+
+== Überblick
+
+image::overview.png[pdfwidth="15cm"]
+
+[background-video="{backgroundimg}/configuration.mp4",background-video-loop="true",background-opacity="0.2"]
+== Backend-Projekt
+
+* Erstellen Sie ein neues Quarkus-Projekt
+* Importieren Sie die folgenden Extensions: 
+** `quarkus-websockets`
+** `quarkus-resteasy`
+** `quarkus-resteasy-jackson`
+
+[background-video="{backgroundimg}/typing.mp4",background-video-loop="true",background-opacity="0.2"]
+== BE-Komponenten
+
+* POJO-Klasse `Survey`: +
+  enthält Fragetext und aktuellen Abstimmungsstand
+  
+* `SurveyController`: +
+  hält die aktuelle Umfragedaten und bietet eine Methode `vote(option)` an.
+
+* `SurveyResource`: +
+  implementiert REST-Methoden zum Setzen einer neuen Umfrage und zum Abstimmen für ein bestimmtes Ergebnis.
+
+=== Survey.java
+
+[source,java]
+----
+include::{besrc}/at/htl/survey/model/Survey.java[tags=survey]
+   ...
+}
+----
+
+=== SurveyController.java
+
+[.source28]
+[source,java,font-size="-1"]
+----
+include::{besrc}/at/htl/survey/action/SurveyController.java[tags=start]
+   ...
+}
+----
+
+== Testen der REST-Schnittstelle
+
+Testen Sie die REST-Schnittstelle mittels http-Request-File in IntelliJ oder alternativ Postman.
+
+Dazu wäre vielleicht eine weitere REST-Funktion zum Abholen des aktuellen Umfragestands sinnvoll.
+
+=== Test Cases
+
+[.source24]
+[source,java]
+----
+include::{besrc}/../../../http/survey.http[]
+----
+
+
+[background-video="{backgroundimg}/typing.mp4",background-video-loop="true",background-opacity="0.2"]
+== WebSockets
+
+Erstellen Sie eine Klasse `SurveySocketServer`.
+
+image::flowchart.png[pdfwith="20cm"]
+
+=== SurveySocketServer.java
+
+[.source28]
+[source,java]
+----
+include::{besrc}/at/htl/survey/undertowwebsockets/SurveySocketServer.java[tags=start]
+  ...
+}
+---- 
+
+=== SurveySocketServer.java
+
+[.source28]
+[source,java]
+----
+include::{besrc}/at/htl/survey/undertowwebsockets/SurveySocketServer.java[tags=onopen;onclose]
+  ...
+}
+---- 
+
+[background-video="{backgroundimg}/configuration.mp4",background-video-loop="true",background-opacity="0.2"]
+== Frontend-Projekt
+
+Erstellen Sie ein neues Angular-Projekt (zB in WebStorms).
+
+
+[background-video="{backgroundimg}/typing.mp4",background-video-loop="true",background-opacity="0.2"]
+== FE-Komponenten
+
+* Bauen Sie die Klasse Survey entsprechend dem Backend nach
+
+* Fügen Sie in der View der App-Component einen Canvas in geeigneter Größe ein und ergänzen Sie eine lokale Referenz (`#canvas`). 
+
+=== survey.model.ts
+
+[.source28]
+[source,typescript]
+----
+include::{fesrc}/model/survey.model.ts[]
+---- 
+
+[background-video="{backgroundimg}/typing.mp4",background-video-loop="true",background-opacity="0.2"]
+== Zugriff auf den Canvas
+
+Um im Typescript-Code auf unser Canvas-Objekt zugreifen zu können wird dies mittels `@ViewChild` verknüpft.
+
+[.source28]
+[source,typescript,indent=0]
+----
+include::{fesrc}/app.component.ts[tags=viewchild]
+---- 
+
+Es kann wie folgt auf den Context2D zugegriffen werden:
+
+`this.canvas.nativeElement.getContext('2d');`
+
+
+[background-video="{backgroundimg}/typing.mp4",background-video-loop="true",background-opacity="0.2"]
+== WebSocket-Anbindung mittels RxJS
+
+Einfacher Weg zum Handling von WebSockets via `Subject`. Dies entspricht in etwa einem `Observable`, wobei damit zusätzlich auch Nachrichten gesendet werden können.
+
+[.source28]
+[source,typescript,indent=0]
+----
+include::{fesrc}/app.component.ts[tags=websockets]
+---- 
+
+[background-video="{backgroundimg}/typing.mp4",background-video-loop="true",background-opacity="0.2"]
+== Implementierung von paint()
+
+Nun muss in der Methode `paint()` nur noch das Balkendiagramm gezeichnet werden.
+
+* `ctx.clearRecht(x,y,w,h)`
+* `ctx.canvas.height`, `ctx.canvas.width`
+* `ctx.fillStyle='red';`
+* `ctx.fillText(text, x, y)`
+* `ctx.fillRect(x,y,w,h)`
+* `ctx.font = "20px Arial";`
+
+=== paint()
+[.source24]
+[source,typescript,indent=0]
+----
+include::{fesrc}/app.component.ts[tags=paint]
+---- 
+
+[background-video="{backgroundimg}/typing.mp4",background-video-loop="true",background-opacity="0.2"]
+== Voting
+
+Um im Client auch eine Stimmabgabe zu ermöglichen kann über die Result-Map iteriert werden und für jede Option ein Button eingeblendet werden.
+
+Für das Absenden des POST-Requests muss `HttpClientModule` eingebunden werden!
+
+=== Vote
+[.source28]
+[source,typescript,indent=0]
+----
+include::{fesrc}/app.component.ts[tags=vote]
+---- 
+
+== Endergebnis
+
+image::screen.png[pdfwidth=15cm]
