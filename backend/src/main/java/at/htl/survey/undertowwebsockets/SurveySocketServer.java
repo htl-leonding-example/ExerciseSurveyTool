@@ -60,13 +60,15 @@ public class SurveySocketServer {
 
     }
 
-    @Produces(MediaType.APPLICATION_JSON)
+    // tag::broadcast[]
     public void broadcast(Survey survey) {
         sessions.forEach(s -> {
             send(s, survey);
         });
     }
+    // end::broadcast[]
 
+    // tag::send[]
     public void send(Session session, Survey survey) {
         ObjectMapper objectMapper = new ObjectMapper();
         String surv;
@@ -83,4 +85,5 @@ public class SurveySocketServer {
             }
         });
     }
+    // end::send[]
 }
