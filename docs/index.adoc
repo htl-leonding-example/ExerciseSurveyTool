@@ -99,9 +99,24 @@ include::{besrc}/at/htl/survey/undertowwebsockets/SurveySocketServer.java[tags=s
 [source,java]
 ----
 include::{besrc}/at/htl/survey/undertowwebsockets/SurveySocketServer.java[tags=onopen;onclose]
-  ...
-}
 ---- 
+
+=== SurveySocketServer.java
+
+[.source28]
+[source,java]
+----
+include::{besrc}/at/htl/survey/undertowwebsockets/SurveySocketServer.java[tags=send]
+---- 
+
+=== SurveySocketServer.java
+
+[.source28]
+[source,java]
+----
+include::{besrc}/at/htl/survey/undertowwebsockets/SurveySocketServer.java[tags=broadcast]
+---- 
+
 
 [background-video="{backgroundimg}/configuration.mp4",background-video-loop="true",background-opacity="0.2"]
 == Frontend-Projekt

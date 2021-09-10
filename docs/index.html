@@ -467,10 +467,26 @@ public class SurveySocketServer {
     @OnClose
     public void onClose(Session session, @PathParam("surveyid") String surveyid) {
         sessions.remove(session);
-    }
+    }</code></pre></div></div></div></section><section id="_surveysocketserver_java_3"><h2>SurveySocketServer.java</h2><div class="slide-content"><div class="listingblock source28"><div class="content"><pre class="highlightjs highlight"><code class="language-java hljs" data-noescape="true" data-lang="java">    public void send(Session session, Survey survey) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String surv;
+        try {
+            surv = objectMapper.writeValueAsString(survey);
+        } catch (JsonProcessingException e) {
+            LOG.error(e);
+            return;
+        }
 
-  ...
-}</code></pre></div></div></div></section></section>
+        session.getAsyncRemote().sendObject(surv, result -&gt; {
+            if (result.getException() != null) {
+                System.out.println("Unable to send message: " + result.getException());
+            }
+        });
+    }</code></pre></div></div></div></section><section id="_surveysocketserver_java_4"><h2>SurveySocketServer.java</h2><div class="slide-content"><div class="listingblock source28"><div class="content"><pre class="highlightjs highlight"><code class="language-java hljs" data-noescape="true" data-lang="java">    public void broadcast(Survey survey) {
+        sessions.forEach(s -&gt; {
+            send(s, survey);
+        });
+    }</code></pre></div></div></div></section></section>
 <section id="_frontend_projekt" data-background-video="https://github.com/aisge/presentationbgvids/raw/master/configuration.mp4" data-background-video-loop data-background-opacity="0.2"><h2>Frontend-Projekt</h2><div class="slide-content"><div class="paragraph"><p>Erstellen Sie ein neues Angular-Projekt (zB in WebStorms).</p></div></div></section>
 <section><section id="_fe_komponenten" data-background-video="https://github.com/aisge/presentationbgvids/raw/master/typing.mp4" data-background-video-loop data-background-opacity="0.2"><h2>FE-Komponenten</h2><div class="slide-content"><div class="ulist"><ul><li><p>Bauen Sie die Klasse Survey entsprechend dem Backend nach</p></li><li><p>Fügen Sie in der View der App-Component einen Canvas in geeigneter Größe ein und ergänzen Sie eine lokale Referenz (<code>#canvas</code>).</p></li></ul></div></div></section><section id="_survey_model_ts"><h2>survey.model.ts</h2><div class="slide-content"><div class="listingblock source28"><div class="content"><pre class="highlightjs highlight"><code class="language-typescript hljs" data-noescape="true" data-lang="typescript">export class Survey {
   text: string = "";
